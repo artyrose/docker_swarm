@@ -1,0 +1,76 @@
+version: '3.5'
+
+services:
+  nginx:
+    image: informburo_nginx:0.1
+    volumes:
+      - /var/www:/var/www
+    working_dir: /var/www/
+    ports:
+      - 80:80
+      - 443:443
+    
+  fpm:
+    image: informburo_fpm:0.1
+    #ports:
+    #  - target: 9000
+    #    published: 9002
+    #    protocol: tcp
+    working_dir: /var/www/informburo/htdocs
+    volumes:
+      - /var/www/informburo:/var/www/informburo
+    configs:
+      - source: php_ini
+        target: /usr/local/etc/php/php.ini
+      - source: php_fpm
+        target: /usr/local/etc/php-fpm.d/www.conf
+      - source: php_fpm_docker
+        target: /usr/local/etc/php-fpm.d/zz-docker.conf
+
+  kpi:
+    image: informburo_kpi:0.1
+    working_dir: /var/www/kpi_informburo/htdocs
+    volumes:
+      - /var/www/kpi_informburo:/var/www/kpi_informburo
+
+  travel:
+    image: informburo_travel:0.1
+    working_dir: /var/www/travel
+    volumes:
+      - /var/www/travel:/var/www/travel
+  
+  redis:
+    image: informburo_redis:0.1    
+    volumes:
+      - /var/lib/redis:/var/lib/redis
+    configs:
+      - source: redis_conf
+        target: /usr/local/etc/redis/redis.conf
+
+  mysql:
+    image: informburo_mysql:0.1
+    volumes:
+      - /var/lib/mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: JivJifKiGrid1
+      MYSQL_DATABASE: informburo
+      MYSQL_USER: informburo
+      MYSQL_PASSWORD: kodigWaycs4
+    configs:
+      - source: mysql_config
+        target: /etc/mysql/my.cnf
+
+  memcached:
+    image: memcached:1.4
+
+configs:
+  php_ini:
+    file: ./conf/php.ini
+  php_fpm:
+    file: ./conf/php-fpm.conf
+  php_fpm_docker:
+    file: ./conf/zz-docker.conf
+  redis_conf:
+    file: ./conf/redis.conf
+  mysql_config:
+    file: ./conf/mysql.config
